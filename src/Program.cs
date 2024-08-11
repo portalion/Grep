@@ -3,9 +3,13 @@ using System.IO;
 
 static bool MatchPattern(string inputLine, string pattern)
 {
-    if (pattern == "\\d")
+    if (pattern == @"\d")
     {
         return inputLine.Any(c => char.IsDigit(c));
+    }
+    if (pattern == @"\w")
+    {
+        return inputLine.Any(c => char.IsLetter(c));
     }
     if (pattern.Length == 1)
     {
