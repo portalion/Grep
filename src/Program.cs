@@ -24,6 +24,10 @@ static bool MatchPattern(string inputLine, string pattern)
 {
     if (pattern.StartsWith("[") && pattern.EndsWith("]"))
     {
+        if (pattern[0] == '^')
+        {
+            return !MatchGroup(inputLine, pattern.Substring(2, pattern.Length - 3));
+        }
         return MatchGroup(inputLine, pattern.Substring(1, pattern.Length - 2));
     }
 
