@@ -1,24 +1,44 @@
 using System;
 using System.IO;
 
+static bool MatchDigit(string input)
+{
+    return input.Any(c => char.IsDigit(c));
+}
+
+static bool MatchLetter(string input)
+{
+    return input.Any(c => char.IsLetter(c));
+}
+
+static bool MatchGroup(string input, string pattern)
+{
+    return input.Contains(pattern);
+}
+
 static bool MatchPattern(string inputLine, string pattern)
 {
+    if (pattern.StartsWith("[") && pattern.EndsWith("]"))
+    {
+        return MatchGroup(inputLine, pattern.Substring(1, pattern.Length - 2));
+    }
+
     if (pattern == @"\d")
     {
-        return inputLine.Any(c => char.IsDigit(c));
+        return MatchDigit(inputLine);
     }
+
     if (pattern == @"\w")
     {
-        return inputLine.Any(c => char.IsLetter(c));
+        return MatchLetter(inputLine);
     }
+
     if (pattern.Length == 1)
     {
         return inputLine.Contains(pattern);
     }
-    else
-    {
-        throw new ArgumentException($"Unhandled pattern: {pattern}");
-    }
+
+    throw new ArgumentException($"Unhandled pattern: {pattern}");
 }
 
 if (args[0] != "-E")
