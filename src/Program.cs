@@ -13,7 +13,11 @@ static bool MatchLetter(string input)
 
 static bool MatchGroup(string input, string pattern)
 {
-    return input.Contains(pattern);
+    foreach (char c in pattern)
+    {
+        if(input.Contains(c)) return true;
+    }
+    return false;
 }
 
 static bool MatchPattern(string inputLine, string pattern)
@@ -48,7 +52,7 @@ if (args[0] != "-E")
 }
 
 string pattern = args[1];
-string inputLine = Console.In.ReadToEnd();
+string inputLine = Console.In.ReadLine();
 
 if (MatchPattern(inputLine, pattern))
 {
