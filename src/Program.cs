@@ -3,6 +3,10 @@ using System.IO;
 
 static bool MatchPattern(string inputLine, string pattern)
 {
+    if (pattern == "\\d")
+    {
+        return inputLine.Any(c => char.IsDigit(c));
+    }
     if (pattern.Length == 1)
     {
         return inputLine.Contains(pattern);
