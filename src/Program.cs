@@ -11,7 +11,7 @@ if (args[0] != "-E")
 string pattern = args[1];
 string inputLine = Console.In.ReadLine() ?? "";
 
-var matcher = new PatternMatcher();
+var matcher = new PatternMatcher(new TokenParser());
 
 if (matcher.MatchPattern(inputLine, pattern))
 {
