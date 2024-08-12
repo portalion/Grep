@@ -85,6 +85,12 @@ public class PatternMatcher : IPatternMatcher
     public bool MatchPattern(string inputLine, string pattern)
     {
         int currentStart = 0;
+
+        if (pattern[0] == '^')
+        {
+            return Match(inputLine.Substring(currentStart), new Queue<char>(pattern));
+        }
+
         do
         {
             var patternInQueue = new Queue<char>(pattern);
