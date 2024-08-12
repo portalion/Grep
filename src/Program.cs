@@ -1,53 +1,6 @@
+using codecrafters_grep.src;
 using System;
 using System.IO;
-
-static bool MatchDigit(string input)
-{
-    return input.Any(c => char.IsDigit(c));
-}
-
-static bool MatchLetter(string input)
-{
-    return input.Any(c => char.IsLetter(c));
-}
-
-static bool MatchGroup(string input, string pattern)
-{
-    foreach (char c in pattern)
-    {
-        if(input.Contains(c)) return true;
-    }
-    return false;
-}
-
-static bool MatchPattern(string inputLine, string pattern)
-{
-    if (pattern.StartsWith("[") && pattern.EndsWith("]"))
-    {
-        if (pattern[1] == '^')
-        {
-            return !MatchGroup(inputLine, pattern.Substring(2, pattern.Length - 3));
-        }
-        return MatchGroup(inputLine, pattern.Substring(1, pattern.Length - 2));
-    }
-
-    if (pattern == @"\d")
-    {
-        return MatchDigit(inputLine);
-    }
-
-    if (pattern == @"\w")
-    {
-        return MatchLetter(inputLine);
-    }
-
-    if (pattern.Length == 1)
-    {
-        return inputLine.Contains(pattern);
-    }
-
-    throw new ArgumentException($"Unhandled pattern: {pattern}");
-}
 
 if (args[0] != "-E")
 {
@@ -56,9 +9,11 @@ if (args[0] != "-E")
 }
 
 string pattern = args[1];
-string inputLine = Console.In.ReadLine();
+string inputLine = Console.In.ReadLine() ?? "";
 
-if (MatchPattern(inputLine, pattern))
+var matcher = new PatternMatcher();
+
+if (matcher.MatchPattern(inputLine, pattern))
 {
     Environment.Exit(0);
 }
