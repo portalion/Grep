@@ -26,10 +26,10 @@ public class PatternMatcher : IPatternMatcher
     }
 
 
-    bool Match(string input, Stack<char> pattern)
+    bool Match(string input, Queue<char> pattern)
     {
         int currentIndex = 0;
-        while(pattern.TryPop(out var character))
+        while(pattern.TryDequeue(out var character))
         {
             if (currentIndex >= input.Length)
                 return false;
@@ -44,9 +44,9 @@ public class PatternMatcher : IPatternMatcher
                         if (first == '^')
                         {
                             reverse = true;
-                            pattern.Pop();
+                            pattern.Dequeue();
                         }
-                        while((first = pattern.Pop()) != ']')
+                        while((first = pattern.Dequeue()) != ']')
                         {
                             group.Append(first);
                         }
@@ -59,7 +59,7 @@ public class PatternMatcher : IPatternMatcher
                     break;
                 case '\\':
                     {
-                        var first = pattern.Pop();
+                        var first = pattern.Dequeue();
                         switch(first)
                         {
                             case 'd':
@@ -87,7 +87,7 @@ public class PatternMatcher : IPatternMatcher
         int currentStart = 0;
         do
         {
-            var patternInQueue = new Stack<char>(pattern);
+            var patternInQueue = new Queue<char>(pattern);
             if (Match(inputLine.Substring(currentStart), patternInQueue))
                 return true;
             currentStart++;
