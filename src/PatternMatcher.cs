@@ -74,7 +74,7 @@ public class PatternMatcher : IPatternMatcher
                     }
                     break;
                 case '$':
-                    return currentIndex == input.Length - 1;
+                    return currentIndex == input.Length;
                 default:
                     if (input[currentIndex] != character)
                         return false;
