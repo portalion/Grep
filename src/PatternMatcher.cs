@@ -31,7 +31,9 @@ public class PatternMatcher : IPatternMatcher
         int currentIndex = 0;
         while(pattern.TryDequeue(out var character))
         {
-            if (currentIndex >= input.Length)
+            if (currentIndex >= input.Length && character == '$')
+                return true;
+            else if (currentIndex >= input.Length)
                 return false;
 
             switch(character)
@@ -73,8 +75,6 @@ public class PatternMatcher : IPatternMatcher
                         }
                     }
                     break;
-                case '$':
-                    return currentIndex == input.Length;
                 default:
                     if (input[currentIndex] != character)
                         return false;
