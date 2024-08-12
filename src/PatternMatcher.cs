@@ -88,7 +88,7 @@ public class PatternMatcher : IPatternMatcher
 
         if (pattern[0] == '^')
         {
-            return Match(inputLine.Substring(currentStart), new Queue<char>(pattern));
+            return Match(inputLine.Substring(currentStart), new Queue<char>(pattern.Substring(1)));
         }
 
         do
