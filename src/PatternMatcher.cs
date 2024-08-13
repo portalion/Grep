@@ -20,13 +20,13 @@ public class PatternMatcher : IPatternMatcher
         {
             (string input, Stack<IToken> tokens) operation = new();
             operation.input = inputLine;
-            operation.tokens = _parser.ParseTokens(new Stack<char>(pattern.Substring(1)));
+            operation.tokens = _parser.ParseTokens(new Stack<char>(pattern.Substring(1).Reverse()));
             operations.Push(operation);
         }
         else
         {
-            var tokens = _parser.ParseTokens(new Stack<char>(pattern));
-            for (int i = 0; i <  pattern.Length; i++)
+            var tokens = _parser.ParseTokens(new Stack<char>(pattern.Reverse());
+            for (int i = 0; i <  inputLine.Length; i++)
             {
                 (string input, Stack<IToken> tokens) operation = new();
                 operation.input = inputLine.Substring(i);

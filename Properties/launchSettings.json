@@ -2,7 +2,7 @@
   "profiles": {
     "codecrafters-grep": {
       "commandName": "Project",
-      "commandLineArgs": "-E\r\n\"^log\""
+      "commandLineArgs": "-E\r\n\"\\d apple\""
     }
   }
 }
