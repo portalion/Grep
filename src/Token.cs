@@ -141,3 +141,33 @@ public class OneOrMoreToken : IToken
         return true;
     }
 }
+
+public class ZeroOrMoreToken : IToken
+{
+    IToken tokenToMatch;
+    public ZeroOrMoreToken(IToken token)
+    {
+        tokenToMatch = token;
+    }
+
+    public bool MatchFromLeft(Stack<(string input, Stack<IToken> tokens)> operations)
+    {
+        var currentOperation = operations.Pop();
+        if (currentOperation.input.Length == 0)
+            return false;
+
+        currentOperation.tokens.Pop();
+        var oneOrManyMatchOperationTokens = currentOperation.tokens.Clone();
+        oneOrManyMatchOperationTokens.Push(this);
+        oneOrManyMatchOperationTokens.Push(tokenToMatch);
+        operations.Push((currentOperation.input, oneOrManyMatchOperationTokens));
+
+        var oneMatchOperationTokens = currentOperation.tokens.Clone();
+        oneMatchOperationTokens.Push(tokenToMatch);
+        operations.Push((currentOperation.input, oneMatchOperationTokens));
+
+        var zeroMatchOperationTokens = currentOperation.tokens.Clone();
+        operations.Push((currentOperation.input, zeroMatchOperationTokens));
+        return true;
+    }
+}

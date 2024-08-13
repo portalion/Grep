@@ -46,9 +46,15 @@ public class TokenParser : ITokenParser
             case '$':
                 return new EndToken();
             case '+':
-                var previousToken = tokens.Pop();
-                return new OneOrMoreToken(previousToken);
+                {
+                    var previousToken = tokens.Pop();
+                    return new OneOrMoreToken(previousToken);
+                }
             case '*':
+                {
+                    var previousToken = tokens.Pop();
+                    return new ZeroOrMoreToken(previousToken);
+                }
             default:
                 return new CharacterToken(topOfStack);
         }
