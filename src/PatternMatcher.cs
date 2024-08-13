@@ -19,7 +19,7 @@ public class PatternMatcher : IPatternMatcher
         if (pattern[0] == '^')
         {
             (string input, Stack<IToken> tokens) operation = new();
-            operation.input = inputLine.Substring(1);
+            operation.input = inputLine;
             operation.tokens = _parser.ParseTokens(new Stack<char>(pattern.Substring(1)));
         }
         else
