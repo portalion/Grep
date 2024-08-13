@@ -179,3 +179,31 @@ public class AlwaysTrueToken : IToken
         return true;
     }
 }
+
+public class OrToken : IToken
+{
+    List<Stack<IToken>> groups = new();
+    public void AddGroup(Stack<IToken> tokens)
+    {
+        groups.Add(tokens);
+    }
+    public bool MatchFromLeft(Stack<(string input, Stack<IToken> tokens)> operations)
+    {
+        var currentOperation = operations.Pop();
+        if (currentOperation.input.Length == 0)
+            return false;
+
+        currentOperation.tokens.Pop();
+
+        foreach(var group in groups)
+        {
+            var operationTokens = currentOperation.tokens.Clone();
+            foreach(var token in group.Reverse())
+            {
+                operationTokens.Push(token);
+            }
+            operations.Push((currentOperation.input, operationTokens));
+        }
+        return true;
+    }
+}

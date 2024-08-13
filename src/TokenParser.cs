@@ -5,12 +5,31 @@ namespace codecrafters_grep.src;
 
 public class TokenParser : ITokenParser
 {
-    Stack <IToken> tokens = new Stack <IToken> ();
-    IToken GetFirstTokenFromPattern(Stack<char> pattern)
+    IToken GetFirstTokenFromPattern(Stack<char> pattern, Stack<IToken> previousTokens)
     {
         var topOfStack = pattern.Pop();
         switch (topOfStack)
         {
+            case '(':
+                {
+                    OrToken result = new OrToken();
+                    char currentlyOnTop;
+                    var currentTokens = new Stack<IToken>();
+                    while((currentlyOnTop = pattern.Peek()) != ')')
+                    {
+                        if(currentlyOnTop == '|')
+                        {
+                            pattern.Pop();
+                            result.AddGroup(new Stack<IToken>(currentTokens.Clone()));
+                            currentTokens.Clear();
+                        }
+                        var token = GetFirstTokenFromPattern(pattern, currentTokens);
+                        currentTokens.Push(token);
+                    }
+                    result.AddGroup(new Stack<IToken>(currentTokens.Clone()));
+                    pattern.Pop();
+                    return result;
+                }
             case '[':
                 {
                     StringBuilder group = new StringBuilder();
@@ -47,12 +66,12 @@ public class TokenParser : ITokenParser
                 return new EndToken();
             case '+':
                 {
-                    var previousToken = tokens.Pop();
+                    var previousToken = previousTokens.Pop();
                     return new OneOrMoreToken(previousToken);
                 }
             case '?':
                 {
-                    var previousToken = tokens.Pop();
+                    var previousToken = previousTokens.Pop();
                     return new ZeroOrOneToken(previousToken);
                 }
             case '.':
@@ -64,12 +83,13 @@ public class TokenParser : ITokenParser
 
     public Stack<IToken> ParseTokens(Stack<char> pattern)
     {
+        var result = new Stack<IToken>();
         while (pattern.TryPeek(out var _))
         {
-            var token = this.GetFirstTokenFromPattern(pattern);
-            tokens.Push(token);
+            var token = this.GetFirstTokenFromPattern(pattern, result);
+            result.Push(token);
         }
 
-        return new (tokens);
+        return new (result);
     }
 }
