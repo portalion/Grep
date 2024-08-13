@@ -28,6 +28,7 @@ public class TokenParser : ITokenParser
                 }
             case '\\':
                 {
+                    var prev = topOfStack;
                     topOfStack = pattern.Pop();
                     switch (topOfStack)
                     {
@@ -36,9 +37,12 @@ public class TokenParser : ITokenParser
                         case 'w':
                             return new LetterToken();
                         default:
-                            goto default;
+                            pattern.Push(topOfStack);
+                            topOfStack = prev;
+                            break;
                     }
                 }
+                goto default;
             case '$':
                 return new EndToken();
             case '+':
