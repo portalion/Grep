@@ -36,7 +36,7 @@ public class TokenParser : ITokenParser
                         case 'w':
                             return new LetterToken();
                         default:
-                            throw new InvalidDataException();
+                            goto default;
                     }
                 }
             case '$':
