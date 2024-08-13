@@ -8,6 +8,5 @@ namespace codecrafters_grep.src.Interfaces;
 
 public interface ITokenParser
 {
-    IToken GetFirstTokenFromPattern(Stack<char> pattern);
     Stack<IToken> ParseTokens(Stack<char> pattern);
 }

@@ -5,7 +5,8 @@ namespace codecrafters_grep.src;
 
 public class TokenParser : ITokenParser
 {
-    public IToken GetFirstTokenFromPattern(Stack<char> pattern)
+    Stack <IToken> tokens = new Stack <IToken> ();
+    IToken GetFirstTokenFromPattern(Stack<char> pattern)
     {
         var topOfStack = pattern.Pop();
         switch (topOfStack)
@@ -41,6 +42,8 @@ public class TokenParser : ITokenParser
             case '$':
                 return new EndToken();
             case '+':
+                var previousToken = tokens.Pop();
+                return new OneOrMoreToken(previousToken);
             case '*':
             default:
                 return new CharacterToken(topOfStack);
@@ -49,8 +52,6 @@ public class TokenParser : ITokenParser
 
     public Stack<IToken> ParseTokens(Stack<char> pattern)
     {
-        Stack<IToken> tokens = new Stack<IToken>();
-
         while (pattern.TryPeek(out var _))
         {
             var token = this.GetFirstTokenFromPattern(pattern);

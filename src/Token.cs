@@ -14,7 +14,7 @@ public class CharacterToken : IToken
     public bool MatchFromLeft(Stack<(string input, Stack<IToken> tokens)> operations)
     {
         var currentOperation = operations.Pop();
-        if (currentOperation.input[0] != character)
+        if (currentOperation.input.Length == 0 || currentOperation.input[0] != character)
             return false;
 
         currentOperation.tokens.Pop();
@@ -30,7 +30,7 @@ public class DigitToken : IToken
     public bool MatchFromLeft(Stack<(string input, Stack<IToken> tokens)> operations)
     {
         var currentOperation = operations.Pop();
-        if (!char.IsDigit(currentOperation.input[0]))
+        if (currentOperation.input.Length == 0 || !char.IsDigit(currentOperation.input[0]))
             return false;
 
         currentOperation.tokens.Pop();
@@ -47,7 +47,7 @@ public class LetterToken : IToken
     {
         var currentOperation = operations.Pop();
 
-        if (!char.IsLetter(currentOperation.input[0]))
+        if (currentOperation.input.Length == 0 || !char.IsLetter(currentOperation.input[0]))
             return false;
 
         currentOperation.tokens.Pop();
@@ -82,7 +82,7 @@ public class GroupToken : IToken
     public bool MatchFromLeft(Stack<(string input, Stack<IToken> tokens)> operations)
     {
         var currentOperation = operations.Pop();
-        if (!group.Contains(currentOperation.input[0]))
+        if (currentOperation.input.Length == 0 || !group.Contains(currentOperation.input[0]))
             return false;
 
         currentOperation.tokens.Pop();
@@ -104,13 +104,40 @@ public class ReverseGroupToken : IToken
     public bool MatchFromLeft(Stack<(string input, Stack<IToken> tokens)> operations)
     {
         var currentOperation = operations.Pop();
-        if (group.Contains(currentOperation.input[0]))
+        if (currentOperation.input.Length == 0 || group.Contains(currentOperation.input[0]))
             return false;
 
         currentOperation.tokens.Pop();
         currentOperation.input = currentOperation.input.Substring(1);
 
         operations.Push(currentOperation);
+        return true;
+    }
+}
+
+public class OneOrMoreToken : IToken
+{
+    IToken tokenToMatch;
+    public OneOrMoreToken(IToken token)
+    {
+        tokenToMatch = token;
+    }
+
+    public bool MatchFromLeft(Stack<(string input, Stack<IToken> tokens)> operations)
+    {
+        var currentOperation = operations.Pop();
+        if (currentOperation.input.Length == 0)
+            return false;
+
+        currentOperation.tokens.Pop();
+        var oneOrManyMatchOperationTokens = currentOperation.tokens.Clone();
+        oneOrManyMatchOperationTokens.Push(this);
+        oneOrManyMatchOperationTokens.Push(tokenToMatch);
+        operations.Push((currentOperation.input, oneOrManyMatchOperationTokens));
+
+        var oneMatchOperationTokens = currentOperation.tokens.Clone();
+        oneOrManyMatchOperationTokens.Push(tokenToMatch);
+        operations.Push((currentOperation.input, oneMatchOperationTokens));
         return true;
     }
 }
