@@ -21,6 +21,7 @@ public class PatternMatcher : IPatternMatcher
             (string input, Stack<IToken> tokens) operation = new();
             operation.input = inputLine;
             operation.tokens = _parser.ParseTokens(new Stack<char>(pattern.Substring(1)));
+            operations.Push(operation);
         }
         else
         {
