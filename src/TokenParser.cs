@@ -50,10 +50,10 @@ public class TokenParser : ITokenParser
                     var previousToken = tokens.Pop();
                     return new OneOrMoreToken(previousToken);
                 }
-            case '*':
+            case '?':
                 {
                     var previousToken = tokens.Pop();
-                    return new ZeroOrMoreToken(previousToken);
+                    return new ZeroOrOneToken(previousToken);
                 }
             default:
                 return new CharacterToken(topOfStack);

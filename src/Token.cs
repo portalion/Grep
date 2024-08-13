@@ -142,10 +142,10 @@ public class OneOrMoreToken : IToken
     }
 }
 
-public class ZeroOrMoreToken : IToken
+public class ZeroOrOneToken : IToken
 {
     IToken tokenToMatch;
-    public ZeroOrMoreToken(IToken token)
+    public ZeroOrOneToken(IToken token)
     {
         tokenToMatch = token;
     }
@@ -157,10 +157,6 @@ public class ZeroOrMoreToken : IToken
             return false;
 
         currentOperation.tokens.Pop();
-        var oneOrManyMatchOperationTokens = currentOperation.tokens.Clone();
-        oneOrManyMatchOperationTokens.Push(this);
-        oneOrManyMatchOperationTokens.Push(tokenToMatch);
-        operations.Push((currentOperation.input, oneOrManyMatchOperationTokens));
 
         var oneMatchOperationTokens = currentOperation.tokens.Clone();
         oneMatchOperationTokens.Push(tokenToMatch);
