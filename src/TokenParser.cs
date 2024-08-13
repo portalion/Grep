@@ -24,7 +24,7 @@ public class TokenParser : ITokenParser
                         return new ReverseGroupToken(group.ToString().Substring(1));
                     }
 
-                    return new ReverseGroupToken(group.ToString());
+                    return new GroupToken(group.ToString());
                 }
             case '\\':
                 {
