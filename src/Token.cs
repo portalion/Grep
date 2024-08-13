@@ -167,3 +167,15 @@ public class ZeroOrOneToken : IToken
         return true;
     }
 }
+
+public class AlwaysTrueToken : IToken
+{
+    public bool MatchFromLeft(Stack<(string input, Stack<IToken> tokens)> operations)
+    {
+        var currentOperation = operations.Pop();
+        currentOperation.tokens.Pop();
+        currentOperation.input = currentOperation.input.Substring(1);
+        operations.Push(currentOperation);
+        return true;
+    }
+}

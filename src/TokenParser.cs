@@ -55,6 +55,8 @@ public class TokenParser : ITokenParser
                     var previousToken = tokens.Pop();
                     return new ZeroOrOneToken(previousToken);
                 }
+            case '.':
+                return new AlwaysTrueToken();
             default:
                 return new CharacterToken(topOfStack);
         }
