@@ -25,7 +25,7 @@ public class PatternMatcher : IPatternMatcher
         }
         else
         {
-            var tokens = _parser.ParseTokens(new Stack<char>(pattern.Reverse());
+            var tokens = _parser.ParseTokens(new Stack<char>(pattern.Reverse()));
             for (int i = 0; i <  inputLine.Length; i++)
             {
                 (string input, Stack<IToken> tokens) operation = new();
