@@ -58,6 +58,6 @@ public class TokenParser : ITokenParser
             tokens.Push(token);
         }
 
-        return tokens;
+        return new (tokens);
     }
 }
