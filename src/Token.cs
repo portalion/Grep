@@ -11,33 +11,63 @@ public class CharacterToken : IToken
         this.character = character;
     }
 
-    public bool MatchFromLeft(string input)
+    public bool MatchFromLeft(Stack<(string input, Stack<IToken> tokens)> operations)
     {
-        return input[0] == character;
+        var currentOperation = operations.Pop();
+        if (currentOperation.input[0] != character)
+            return false;
+
+        currentOperation.tokens.Pop();
+        currentOperation.input = currentOperation.input.Substring(1);
+
+        operations.Push(currentOperation);
+        return true;
     }
 }
 
 public class DigitToken : IToken
 {
-    public bool MatchFromLeft(string input)
+    public bool MatchFromLeft(Stack<(string input, Stack<IToken> tokens)> operations)
     {
-        return char.IsDigit(input[0]);
+        var currentOperation = operations.Pop();
+        if (!char.IsDigit(currentOperation.input[0]))
+            return false;
+
+        currentOperation.tokens.Pop();
+        currentOperation.input = currentOperation.input.Substring(1);
+
+        operations.Push(currentOperation);
+        return true;
     }
 }
 
 public class LetterToken : IToken
 {
-    public bool MatchFromLeft(string input)
+    public bool MatchFromLeft(Stack<(string input, Stack<IToken> tokens)> operations)
     {
-        return char.IsLetter(input[0]);
+        var currentOperation = operations.Pop();
+
+        if (!char.IsLetter(currentOperation.input[0]))
+            return false;
+
+        currentOperation.tokens.Pop();
+        currentOperation.input = currentOperation.input.Substring(1);
+        operations.Push(currentOperation);
+        return true;
     }
 }
 
 public class EndToken : IToken
 {
-    public bool MatchFromLeft(string input)
+    public bool MatchFromLeft(Stack<(string input, Stack<IToken> tokens)> operations)
     {
-        return input.Length == 0;
+        var currentOperation = operations.Pop();
+        if (currentOperation.input.Length != 0)
+            return false;
+
+        currentOperation.tokens.Pop();
+        operations.Push(currentOperation);
+        return true;
     }
 }
 
@@ -49,21 +79,38 @@ public class GroupToken : IToken
         this.group = group;
     }
 
-    public bool MatchFromLeft(string input)
+    public bool MatchFromLeft(Stack<(string input, Stack<IToken> tokens)> operations)
     {
-        return group.Contains(input[0]);
+        var currentOperation = operations.Pop();
+        if (!group.Contains(currentOperation.input[0]))
+            return false;
+
+        currentOperation.tokens.Pop();
+        currentOperation.input = currentOperation.input.Substring(1);
+
+        operations.Push(currentOperation);
+        return true;
     }
 }
 
-public class ReverseGroupToken : GroupToken
+public class ReverseGroupToken : IToken
 {
+    string group;
     public ReverseGroupToken(string group)
-        :base(group)
     {
+        this.group = group;
     }
 
-    public new bool MatchFromLeft(string input)
+    public bool MatchFromLeft(Stack<(string input, Stack<IToken> tokens)> operations)
     {
-        return !base.MatchFromLeft(input);
+        var currentOperation = operations.Pop();
+        if (group.Contains(currentOperation.input[0]))
+            return false;
+
+        currentOperation.tokens.Pop();
+        currentOperation.input = currentOperation.input.Substring(1);
+
+        operations.Push(currentOperation);
+        return true;
     }
 }

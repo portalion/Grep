@@ -13,24 +13,38 @@ public class PatternMatcher : IPatternMatcher
         _parser = parser;
     }
 
-    
-
     public bool MatchPattern(string inputLine, string pattern)
     {
-        //int currentStart = 0;
-
-        //if (pattern[0] == '^')
-        //{
-        //    return Match(inputLine.Substring(currentStart), new Queue<char>(pattern.Substring(1)));
-        //}
-
-        //do
-        //{
-        //    var patternInStack = new Stack<char>(pattern).Reverse();
-        //    if (Match(inputLine.Substring(currentStart), patternInStack))
-        //        return true;
-        //    currentStart++;
-        //} while (currentStart < inputLine.Length);
+        Stack<(string input, Stack<IToken> tokens)> operations = new Stack<(string input, Stack<IToken> tokens)>();
+        if (pattern[0] == '^')
+        {
+            (string input, Stack<IToken> tokens) operation = new();
+            operation.input = inputLine.Substring(1);
+            operation.tokens = _parser.ParseTokens(new Stack<char>(pattern.Substring(1).Reverse()));
+        }
+        else
+        {
+            var tokens = _parser.ParseTokens(new Stack<char>(pattern.Substring(1).Reverse()));
+            for (int i = 0; i <  pattern.Length; i++)
+            {
+                (string input, Stack<IToken> tokens) operation = new();
+                operation.input = inputLine.Substring(i);
+                operation.tokens = tokens.Clone();
+                operations.Push(operation);
+            }
+        }
+        
+        while(operations.TryPeek(out var operation)) 
+        {
+            if(operation.tokens.TryPeek(out var firstToken)) //if tokens are empty it determines that we found pattern
+            {
+                firstToken.MatchFromLeft(operations);
+            }
+            else
+            {
+                return true;
+            }
+        }
 
         return false;
     }

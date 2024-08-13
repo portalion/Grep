@@ -47,7 +47,7 @@ public class TokenParser : ITokenParser
         }
     }
 
-    public Queue<IToken> ParseTokens(Stack<char> pattern)
+    public Stack<IToken> ParseTokens(Stack<char> pattern)
     {
         Stack<IToken> tokens = new Stack<IToken>();
 
@@ -57,6 +57,6 @@ public class TokenParser : ITokenParser
             tokens.Push(token);
         }
 
-        return new Queue<IToken>(new Queue<IToken>(tokens).Reverse());
+        return tokens;
     }
 }
