@@ -136,7 +136,7 @@ public class OneOrMoreToken : IToken
         operations.Push((currentOperation.input, oneOrManyMatchOperationTokens));
 
         var oneMatchOperationTokens = currentOperation.tokens.Clone();
-        oneOrManyMatchOperationTokens.Push(tokenToMatch);
+        oneMatchOperationTokens.Push(tokenToMatch);
         operations.Push((currentOperation.input, oneMatchOperationTokens));
         return true;
     }

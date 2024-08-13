@@ -26,13 +26,14 @@ public class PatternMatcher : IPatternMatcher
         else
         {
             var tokens = _parser.ParseTokens(new Stack<char>(pattern.Reverse()));
-            for (int i = 0; i <  inputLine.Length; i++)
+            for (int i = 0; i < inputLine.Length; i++)
             {
                 (string input, Stack<IToken> tokens) operation = new();
                 operation.input = inputLine.Substring(i);
                 operation.tokens = tokens.Clone();
                 operations.Push(operation);
             }
+            operations = new Stack<(string input, Stack<IToken> tokens)>(operations);
         }
         
         while(operations.TryPeek(out var operation)) 
