@@ -2,7 +2,28 @@
 
 namespace codecrafters_grep.src;
 
-public class CharacterToken : IToken
+using Operation = (string input, Stack<IToken> tokens);
+
+public abstract class Token : IToken
+{
+    protected abstract bool Condition(Stack<Operation> operations, Operation currentOperation);
+    protected abstract void AfterMatching(Stack<Operation> operations, Operation currentOperation);
+
+    public bool MatchFromLeft(Stack<Operation> operations)
+    {
+        var currentOperation = operations.Pop();
+        if (Condition(operations, currentOperation))
+            return false;
+
+        currentOperation.tokens.Pop();
+
+        AfterMatching(operations, currentOperation);
+
+        return true;
+    }
+}
+
+public class CharacterToken : Token
 {
     char character;
 
@@ -11,67 +32,60 @@ public class CharacterToken : IToken
         this.character = character;
     }
 
-    public bool MatchFromLeft(Stack<(string input, Stack<IToken> tokens)> operations)
+    protected override void AfterMatching(Stack<Operation> operations, Operation currentOperation)
     {
-        var currentOperation = operations.Pop();
-        if (currentOperation.input.Length == 0 || currentOperation.input[0] != character)
-            return false;
-
-        currentOperation.tokens.Pop();
-        currentOperation.input = currentOperation.input.Substring(1);
-
-        operations.Push(currentOperation);
-        return true;
-    }
-}
-
-public class DigitToken : IToken
-{
-    public bool MatchFromLeft(Stack<(string input, Stack<IToken> tokens)> operations)
-    {
-        var currentOperation = operations.Pop();
-        if (currentOperation.input.Length == 0 || !char.IsDigit(currentOperation.input[0]))
-            return false;
-
-        currentOperation.tokens.Pop();
-        currentOperation.input = currentOperation.input.Substring(1);
-
-        operations.Push(currentOperation);
-        return true;
-    }
-}
-
-public class LetterToken : IToken
-{
-    public bool MatchFromLeft(Stack<(string input, Stack<IToken> tokens)> operations)
-    {
-        var currentOperation = operations.Pop();
-
-        if (currentOperation.input.Length == 0 || !char.IsLetter(currentOperation.input[0]))
-            return false;
-
-        currentOperation.tokens.Pop();
         currentOperation.input = currentOperation.input.Substring(1);
         operations.Push(currentOperation);
-        return true;
     }
-}
 
-public class EndToken : IToken
-{
-    public bool MatchFromLeft(Stack<(string input, Stack<IToken> tokens)> operations)
+    protected override bool Condition(Stack<Operation> operations, Operation currentOperation)
     {
-        var currentOperation = operations.Pop();
-        if (currentOperation.input.Length != 0)
-            return false;
-
-        currentOperation.tokens.Pop();
-        operations.Push(currentOperation);
-        return true;
+        return currentOperation.input.Length == 0 || currentOperation.input[0] != character;
     }
 }
 
-public class GroupToken : IToken
+public class DigitToken : Token
+{
+    protected override void AfterMatching(Stack<Operation> operations, Operation currentOperation)
+    {
+        currentOperation.input = currentOperation.input.Substring(1);
+        operations.Push(currentOperation);
+    }
+
+    protected override bool Condition(Stack<Operation> operations, Operation currentOperation)
+    {
+        return currentOperation.input.Length == 0 || !char.IsDigit(currentOperation.input[0]);
+    }
+}
+
+public class LetterToken : Token
+{
+    protected override void AfterMatching(Stack<Operation> operations, Operation currentOperation)
+    {
+        currentOperation.input = currentOperation.input.Substring(1);
+        operations.Push(currentOperation);
+    }
+
+    protected override bool Condition(Stack<Operation> operations, Operation currentOperation)
+    {
+        return currentOperation.input.Length == 0 || !char.IsLetter(currentOperation.input[0]);
+    }
+}
+
+public class EndToken : Token
+{
+    protected override void AfterMatching(Stack<Operation> operations, Operation currentOperation)
+    {
+        operations.Push(currentOperation); 
+    }
+
+    protected override bool Condition(Stack<Operation> operations, Operation currentOperation)
+    {
+        return currentOperation.input.Length != 0;
+    }
+}
+
+public class GroupToken : Token
 {
     string group;
     public GroupToken(string group)
@@ -79,21 +93,19 @@ public class GroupToken : IToken
         this.group = group;
     }
 
-    public bool MatchFromLeft(Stack<(string input, Stack<IToken> tokens)> operations)
+    protected override void AfterMatching(Stack<Operation> operations, Operation currentOperation)
     {
-        var currentOperation = operations.Pop();
-        if (currentOperation.input.Length == 0 || !group.Contains(currentOperation.input[0]))
-            return false;
-
-        currentOperation.tokens.Pop();
         currentOperation.input = currentOperation.input.Substring(1);
-
         operations.Push(currentOperation);
-        return true;
+    }
+
+    protected override bool Condition(Stack<Operation> operations, Operation currentOperation)
+    {
+        return currentOperation.input.Length == 0 || !group.Contains(currentOperation.input[0]);
     }
 }
 
-public class ReverseGroupToken : IToken
+public class ReverseGroupToken : Token
 {
     string group;
     public ReverseGroupToken(string group)
@@ -101,21 +113,19 @@ public class ReverseGroupToken : IToken
         this.group = group;
     }
 
-    public bool MatchFromLeft(Stack<(string input, Stack<IToken> tokens)> operations)
+    protected override void AfterMatching(Stack<Operation> operations, Operation currentOperation)
     {
-        var currentOperation = operations.Pop();
-        if (currentOperation.input.Length == 0 || group.Contains(currentOperation.input[0]))
-            return false;
-
-        currentOperation.tokens.Pop();
         currentOperation.input = currentOperation.input.Substring(1);
-
         operations.Push(currentOperation);
-        return true;
+    }
+
+    protected override bool Condition(Stack<Operation> operations, Operation currentOperation)
+    {
+        return currentOperation.input.Length == 0 || group.Contains(currentOperation.input[0]);
     }
 }
 
-public class OneOrMoreToken : IToken
+public class OneOrMoreToken : Token
 {
     IToken tokenToMatch;
     public OneOrMoreToken(IToken token)
@@ -123,13 +133,8 @@ public class OneOrMoreToken : IToken
         tokenToMatch = token;
     }
 
-    public bool MatchFromLeft(Stack<(string input, Stack<IToken> tokens)> operations)
+    protected override void AfterMatching(Stack<Operation> operations, Operation currentOperation)
     {
-        var currentOperation = operations.Pop();
-        if (currentOperation.input.Length == 0)
-            return false;
-
-        currentOperation.tokens.Pop();
         var oneOrManyMatchOperationTokens = currentOperation.tokens.Clone();
         oneOrManyMatchOperationTokens.Push(this);
         oneOrManyMatchOperationTokens.Push(tokenToMatch);
@@ -138,11 +143,15 @@ public class OneOrMoreToken : IToken
         var oneMatchOperationTokens = currentOperation.tokens.Clone();
         oneMatchOperationTokens.Push(tokenToMatch);
         operations.Push((currentOperation.input, oneMatchOperationTokens));
-        return true;
+    }
+
+    protected override bool Condition(Stack<Operation> operations, Operation currentOperation)
+    {
+        return currentOperation.input.Length == 0;
     }
 }
 
-public class ZeroOrOneToken : IToken
+public class ZeroOrOneToken : Token
 {
     IToken tokenToMatch;
     public ZeroOrOneToken(IToken token)
@@ -150,60 +159,59 @@ public class ZeroOrOneToken : IToken
         tokenToMatch = token;
     }
 
-    public bool MatchFromLeft(Stack<(string input, Stack<IToken> tokens)> operations)
+    protected override void AfterMatching(Stack<Operation> operations, Operation currentOperation)
     {
-        var currentOperation = operations.Pop();
-        if (currentOperation.input.Length == 0)
-            return false;
-
-        currentOperation.tokens.Pop();
-
         var oneMatchOperationTokens = currentOperation.tokens.Clone();
         oneMatchOperationTokens.Push(tokenToMatch);
         operations.Push((currentOperation.input, oneMatchOperationTokens));
 
         var zeroMatchOperationTokens = currentOperation.tokens.Clone();
         operations.Push((currentOperation.input, zeroMatchOperationTokens));
-        return true;
+    }
+
+    protected override bool Condition(Stack<Operation> operations, Operation currentOperation)
+    {
+        return currentOperation.input.Length == 0;
     }
 }
 
-public class AlwaysTrueToken : IToken
+public class AlwaysTrueToken : Token
 {
-    public bool MatchFromLeft(Stack<(string input, Stack<IToken> tokens)> operations)
+    protected override void AfterMatching(Stack<Operation> operations, Operation currentOperation)
     {
-        var currentOperation = operations.Pop();
-        currentOperation.tokens.Pop();
         currentOperation.input = currentOperation.input.Substring(1);
         operations.Push(currentOperation);
-        return true;
+    }
+
+    protected override bool Condition(Stack<Operation> operations, Operation currentOperation)
+    {
+        return false;
     }
 }
 
-public class OrToken : IToken
+public class OrToken : Token
 {
     List<Stack<IToken>> groups = new();
     public void AddGroup(Stack<IToken> tokens)
     {
         groups.Add(tokens);
     }
-    public bool MatchFromLeft(Stack<(string input, Stack<IToken> tokens)> operations)
+
+    protected override void AfterMatching(Stack<Operation> operations, Operation currentOperation)
     {
-        var currentOperation = operations.Pop();
-        if (currentOperation.input.Length == 0)
-            return false;
-
-        currentOperation.tokens.Pop();
-
-        foreach(var group in groups)
+        foreach (var group in groups)
         {
             var operationTokens = currentOperation.tokens.Clone();
-            foreach(var token in group.Reverse())
+            foreach (var token in group.Reverse())
             {
                 operationTokens.Push(token);
             }
             operations.Push((currentOperation.input, operationTokens));
         }
-        return true;
+    }
+
+    protected override bool Condition(Stack<Operation> operations, Operation currentOperation)
+    {
+        return currentOperation.input.Length == 0;
     }
 }
