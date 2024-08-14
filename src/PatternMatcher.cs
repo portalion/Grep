@@ -1,7 +1,4 @@
-﻿
-using System.Linq;
-using System.Text;
-using codecrafters_grep.src.Interfaces;
+﻿using codecrafters_grep.src.Interfaces;
 
 namespace codecrafters_grep.src;
 

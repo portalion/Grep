@@ -1,6 +1,4 @@
 using codecrafters_grep.src;
-using System;
-using System.IO;
 
 if (args[0] != "-E")
 {
