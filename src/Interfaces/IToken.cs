@@ -8,5 +8,6 @@ namespace codecrafters_grep.src.Interfaces;
 
 public interface IToken
 {
-    bool MatchFromLeft(Stack<(string input, Stack<IToken> tokens)> operations);
+    bool IsMatching(string input);
+    void AfterMatching(OperationManager operationManager, Operation currentOperation);
 }

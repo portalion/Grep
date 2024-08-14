@@ -15,37 +15,39 @@ public class PatternMatcher : IPatternMatcher
 
     public bool MatchPattern(string inputLine, string pattern)
     {
-        Stack<(string input, Stack<IToken> tokens)> operations = new Stack<(string input, Stack<IToken> tokens)>();
+        OperationManager operationManager = new OperationManager();
         if (pattern[0] == '^')
         {
-            (string input, Stack<IToken> tokens) operation = new();
-            operation.input = inputLine;
-            operation.tokens = _parser.ParseTokens(new Stack<char>(pattern.Substring(1).Reverse()));
-            operations.Push(operation);
+            var patternWithoutFirstCharacter = new Stack<char>(pattern.Substring(1).Reverse());
+            var tokens = _parser.ParseTokens(patternWithoutFirstCharacter);
+            operationManager.AddOperation(inputLine, tokens);
         }
         else
         {
             var tokens = _parser.ParseTokens(new Stack<char>(pattern.Reverse()));
             for (int i = 0; i < inputLine.Length; i++)
             {
-                (string input, Stack<IToken> tokens) operation = new();
-                operation.input = inputLine.Substring(i);
-                operation.tokens = tokens.Clone();
-                operations.Push(operation);
+                operationManager.AddOperation(inputLine.Substring(i), tokens.Clone());
             }
-            operations = new Stack<(string input, Stack<IToken> tokens)>(operations);
         }
         
-        while(operations.TryPeek(out var operation)) 
+        while(!operationManager.IsEmpty) 
         {
-            if(operation.tokens.TryPeek(out var firstToken)) //if tokens are empty it determines that we found pattern
-            {
-                firstToken.MatchFromLeft(operations);
-            }
-            else
+            var currentOperation = operationManager.CurrentOperation;
+            if (currentOperation.TokensAreEmpty) //if tokens are empty it determines that we found pattern
             {
                 return true;
             }
+
+            operationManager.RemoveTopOperation();
+            if (currentOperation.FirstToken.IsMatching(currentOperation.Input))
+            {
+                continue;
+            }
+
+            currentOperation.Tokens.Pop();
+
+            currentOperation.FirstToken.AfterMatching(operationManager, currentOperation);
         }
 
         return false;

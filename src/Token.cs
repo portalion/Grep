@@ -2,28 +2,7 @@
 
 namespace codecrafters_grep.src;
 
-using Operation = (string input, Stack<IToken> tokens);
-
-public abstract class Token : IToken
-{
-    protected abstract bool Condition(Stack<Operation> operations, Operation currentOperation);
-    protected abstract void AfterMatching(Stack<Operation> operations, Operation currentOperation);
-
-    public bool MatchFromLeft(Stack<Operation> operations)
-    {
-        var currentOperation = operations.Pop();
-        if (Condition(operations, currentOperation))
-            return false;
-
-        currentOperation.tokens.Pop();
-
-        AfterMatching(operations, currentOperation);
-
-        return true;
-    }
-}
-
-public class CharacterToken : Token
+public class CharacterToken : IToken
 {
     char character;
 
@@ -32,60 +11,60 @@ public class CharacterToken : Token
         this.character = character;
     }
 
-    protected override void AfterMatching(Stack<Operation> operations, Operation currentOperation)
+    public void AfterMatching(OperationManager operationManager, Operation currentOperation)
     {
-        currentOperation.input = currentOperation.input.Substring(1);
-        operations.Push(currentOperation);
+        currentOperation.Input = currentOperation.Input.Substring(1);
+        operationManager.AddOperation(currentOperation);
     }
 
-    protected override bool Condition(Stack<Operation> operations, Operation currentOperation)
+    public bool IsMatching(string input)
     {
-        return currentOperation.input.Length == 0 || currentOperation.input[0] != character;
+        return input.Length != 0 && input[0] == character;
     }
 }
 
-public class DigitToken : Token
+public class DigitToken : IToken
 {
-    protected override void AfterMatching(Stack<Operation> operations, Operation currentOperation)
+    public void AfterMatching(OperationManager operationManager, Operation currentOperation)
     {
-        currentOperation.input = currentOperation.input.Substring(1);
-        operations.Push(currentOperation);
+        currentOperation.Input = currentOperation.Input.Substring(1);
+        operationManager.AddOperation(currentOperation);
     }
 
-    protected override bool Condition(Stack<Operation> operations, Operation currentOperation)
+    public bool IsMatching(string input)
     {
-        return currentOperation.input.Length == 0 || !char.IsDigit(currentOperation.input[0]);
+        return input.Length != 0 && char.IsDigit(input[0]);
     }
 }
 
-public class LetterToken : Token
+public class LetterToken : IToken
 {
-    protected override void AfterMatching(Stack<Operation> operations, Operation currentOperation)
+    public void AfterMatching(OperationManager operationManager, Operation currentOperation)
     {
-        currentOperation.input = currentOperation.input.Substring(1);
-        operations.Push(currentOperation);
+        currentOperation.Input = currentOperation.Input.Substring(1);
+        operationManager.AddOperation(currentOperation);
     }
 
-    protected override bool Condition(Stack<Operation> operations, Operation currentOperation)
+    public bool IsMatching(string input)
     {
-        return currentOperation.input.Length == 0 || !char.IsLetter(currentOperation.input[0]);
+        return input.Length != 0 && char.IsLetter(input[0]);
     }
 }
 
-public class EndToken : Token
+public class EndToken : IToken
 {
-    protected override void AfterMatching(Stack<Operation> operations, Operation currentOperation)
+    public void AfterMatching(OperationManager operationManager, Operation currentOperation)
     {
-        operations.Push(currentOperation); 
+        operationManager.AddOperation(currentOperation);
     }
 
-    protected override bool Condition(Stack<Operation> operations, Operation currentOperation)
+    public bool IsMatching(string input)
     {
-        return currentOperation.input.Length != 0;
+        return input.Length == 0;
     }
 }
 
-public class GroupToken : Token
+public class GroupToken : IToken
 {
     string group;
     public GroupToken(string group)
@@ -93,19 +72,19 @@ public class GroupToken : Token
         this.group = group;
     }
 
-    protected override void AfterMatching(Stack<Operation> operations, Operation currentOperation)
+    public void AfterMatching(OperationManager operationManager, Operation currentOperation)
     {
-        currentOperation.input = currentOperation.input.Substring(1);
-        operations.Push(currentOperation);
+        currentOperation.Input = currentOperation.Input.Substring(1);
+        operationManager.AddOperation(currentOperation);
     }
 
-    protected override bool Condition(Stack<Operation> operations, Operation currentOperation)
+    public bool IsMatching(string input)
     {
-        return currentOperation.input.Length == 0 || !group.Contains(currentOperation.input[0]);
+        return input.Length != 0 && group.Contains(input[0]);
     }
 }
 
-public class ReverseGroupToken : Token
+public class ReverseGroupToken : IToken
 {
     string group;
     public ReverseGroupToken(string group)
@@ -113,19 +92,19 @@ public class ReverseGroupToken : Token
         this.group = group;
     }
 
-    protected override void AfterMatching(Stack<Operation> operations, Operation currentOperation)
+    public void AfterMatching(OperationManager operationManager, Operation currentOperation)
     {
-        currentOperation.input = currentOperation.input.Substring(1);
-        operations.Push(currentOperation);
+        currentOperation.Input = currentOperation.Input.Substring(1);
+        operationManager.AddOperation(currentOperation);
     }
 
-    protected override bool Condition(Stack<Operation> operations, Operation currentOperation)
+    public bool IsMatching(string input)
     {
-        return currentOperation.input.Length == 0 || group.Contains(currentOperation.input[0]);
+        return input.Length != 0 && !group.Contains(input[0]);
     }
 }
 
-public class OneOrMoreToken : Token
+public class OneOrMoreToken : IToken
 {
     IToken tokenToMatch;
     public OneOrMoreToken(IToken token)
@@ -133,63 +112,61 @@ public class OneOrMoreToken : Token
         tokenToMatch = token;
     }
 
-    protected override void AfterMatching(Stack<Operation> operations, Operation currentOperation)
+    public void AfterMatching(OperationManager operationManager, Operation currentOperation)
     {
-        var oneOrManyMatchOperationTokens = currentOperation.tokens.Clone();
+        var oneOrManyMatchOperationTokens = currentOperation.Tokens.Clone();
         oneOrManyMatchOperationTokens.Push(this);
         oneOrManyMatchOperationTokens.Push(tokenToMatch);
-        operations.Push((currentOperation.input, oneOrManyMatchOperationTokens));
+        operationManager.AddOperation(currentOperation.Input, oneOrManyMatchOperationTokens);
 
-        var oneMatchOperationTokens = currentOperation.tokens.Clone();
+        var oneMatchOperationTokens = currentOperation.Tokens.Clone();
         oneMatchOperationTokens.Push(tokenToMatch);
-        operations.Push((currentOperation.input, oneMatchOperationTokens));
+        operationManager.AddOperation(currentOperation.Input, oneMatchOperationTokens);
     }
 
-    protected override bool Condition(Stack<Operation> operations, Operation currentOperation)
+    public bool IsMatching(string input)
     {
-        return currentOperation.input.Length == 0;
+        return input.Length != 0;
     }
 }
 
-public class ZeroOrOneToken : Token
+public class ZeroOrOneToken : IToken
 {
     IToken tokenToMatch;
     public ZeroOrOneToken(IToken token)
     {
         tokenToMatch = token;
     }
-
-    protected override void AfterMatching(Stack<Operation> operations, Operation currentOperation)
+    public void AfterMatching(OperationManager operationManager, Operation currentOperation)
     {
-        var oneMatchOperationTokens = currentOperation.tokens.Clone();
+        var oneMatchOperationTokens = currentOperation.Tokens.Clone();
         oneMatchOperationTokens.Push(tokenToMatch);
-        operations.Push((currentOperation.input, oneMatchOperationTokens));
-
-        var zeroMatchOperationTokens = currentOperation.tokens.Clone();
-        operations.Push((currentOperation.input, zeroMatchOperationTokens));
+        operationManager.AddOperation(currentOperation.Input, oneMatchOperationTokens);
+        var zeroMatchOperationTokens = currentOperation.Tokens.Clone();
+        operationManager.AddOperation(currentOperation.Input, zeroMatchOperationTokens);
     }
 
-    protected override bool Condition(Stack<Operation> operations, Operation currentOperation)
+    public bool IsMatching(string input)
     {
-        return currentOperation.input.Length == 0;
+        return input.Length != 0;
     }
 }
 
-public class AlwaysTrueToken : Token
+public class AlwaysTrueToken : IToken
 {
-    protected override void AfterMatching(Stack<Operation> operations, Operation currentOperation)
+    public void AfterMatching(OperationManager operationManager, Operation currentOperation)
     {
-        currentOperation.input = currentOperation.input.Substring(1);
-        operations.Push(currentOperation);
+        currentOperation.Input = currentOperation.Input.Substring(1);
+        operationManager.AddOperation(currentOperation);
     }
 
-    protected override bool Condition(Stack<Operation> operations, Operation currentOperation)
+    public bool IsMatching(string input)
     {
-        return false;
+        return true;
     }
 }
 
-public class OrToken : Token
+public class OrToken : IToken
 {
     List<Stack<IToken>> groups = new();
     public void AddGroup(Stack<IToken> tokens)
@@ -197,21 +174,21 @@ public class OrToken : Token
         groups.Add(tokens);
     }
 
-    protected override void AfterMatching(Stack<Operation> operations, Operation currentOperation)
+    public void AfterMatching(OperationManager operationManager, Operation currentOperation)
     {
         foreach (var group in groups)
         {
-            var operationTokens = currentOperation.tokens.Clone();
+            var operationTokens = currentOperation.Tokens.Clone();
             foreach (var token in group.Reverse())
             {
                 operationTokens.Push(token);
             }
-            operations.Push((currentOperation.input, operationTokens));
+            operationManager.AddOperation(currentOperation.Input, operationTokens);
         }
     }
 
-    protected override bool Condition(Stack<Operation> operations, Operation currentOperation)
+    public bool IsMatching(string input)
     {
-        return currentOperation.input.Length == 0;
+        return input.Length != 0;
     }
 }
