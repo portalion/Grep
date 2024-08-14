@@ -33,7 +33,7 @@ public class PatternMatcher : IPatternMatcher
         
         while(!operationManager.IsEmpty) 
         {            
-            if (operationManager.FoundMatch) //if tokens are empty it determines that we found pattern
+            if (operationManager.FoundMatch)
             {
                 return true;
             }
@@ -42,6 +42,7 @@ public class PatternMatcher : IPatternMatcher
             
             if (!firstToken.IsMatching(operationManager.CurrentOperation.Input))
             {
+                operationManager.RemoveTopOperation();
                 continue;
             }
 
