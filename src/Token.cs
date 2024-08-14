@@ -102,14 +102,15 @@ public class OneOrMoreToken : IToken
     public void AfterMatching(OperationManager operationManager)
     {
         var currentOperation = operationManager.RemoveTopOperation();
-        var oneOrManyMatchOperationTokens = currentOperation.Tokens.Clone();
-        oneOrManyMatchOperationTokens.Push(this);
-        oneOrManyMatchOperationTokens.Push(tokenToMatch);
-        operationManager.AddOperation(currentOperation.Input, oneOrManyMatchOperationTokens);
 
-        var oneMatchOperationTokens = currentOperation.Tokens.Clone();
-        oneMatchOperationTokens.Push(tokenToMatch);
-        operationManager.AddOperation(currentOperation.Input, oneMatchOperationTokens);
+        var oneOrManyMatchOperation = currentOperation.Clone();
+        oneOrManyMatchOperation.AddToken(this);
+        oneOrManyMatchOperation.AddToken(tokenToMatch);
+        operationManager.AddOperation(oneOrManyMatchOperation);
+
+        var oneMatchOperation = currentOperation.Clone();
+        oneMatchOperation.AddToken(tokenToMatch);
+        operationManager.AddOperation(oneMatchOperation);
     }
 
     public bool IsMatching(string input)
@@ -128,11 +129,13 @@ public class ZeroOrOneToken : IToken
     public void AfterMatching(OperationManager operationManager)
     {
         var currentOperation = operationManager.RemoveTopOperation();
-        var oneMatchOperationTokens = currentOperation.Tokens.Clone();
-        oneMatchOperationTokens.Push(tokenToMatch);
-        operationManager.AddOperation(currentOperation.Input, oneMatchOperationTokens);
-        var zeroMatchOperationTokens = currentOperation.Tokens.Clone();
-        operationManager.AddOperation(currentOperation.Input, zeroMatchOperationTokens);
+
+        var oneMatchOperation = currentOperation.Clone();
+        oneMatchOperation.AddToken(tokenToMatch);
+        operationManager.AddOperation(oneMatchOperation);
+
+        var zeroMatchOperation = currentOperation.Clone();
+        operationManager.AddOperation(zeroMatchOperation);
     }
 
     public bool IsMatching(string input)
@@ -154,12 +157,12 @@ public class OrToken : IToken
         var currentOperation = operationManager.RemoveTopOperation();
         foreach (var group in groups)
         {
-            var operationTokens = currentOperation.Tokens.Clone();
+            var operation = currentOperation.Clone();
             foreach (var token in group.Reverse())
             {
-                operationTokens.Push(token);
+                operation.AddToken(token);
             }
-            operationManager.AddOperation(currentOperation.Input, operationTokens);
+            operationManager.AddOperation(operation);
         }
     }
 

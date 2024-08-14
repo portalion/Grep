@@ -22,4 +22,17 @@ public class Operation
     {
         Input = Input.Substring(1);
     }
+
+    public Operation Clone()
+    {
+        var result = new Operation();
+        result.Input = Input;
+        result.Tokens = Tokens.Clone();
+        return result;
+    }
+
+    public void AddToken(IToken token)
+    {
+        Tokens.Push(token);
+    }
 }
