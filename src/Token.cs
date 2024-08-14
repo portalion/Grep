@@ -2,7 +2,18 @@
 
 namespace codecrafters_grep.src;
 
-public class CharacterToken : IToken
+public abstract class MoveByOneCharacterToken : IToken
+{
+    public void AfterMatching(OperationManager operationManager, Operation currentOperation)
+    {
+        currentOperation.Input = currentOperation.Input.Substring(1);
+        operationManager.AddOperation(currentOperation);
+    }
+
+    public abstract bool IsMatching(string input);
+}
+
+public class CharacterToken : MoveByOneCharacterToken
 {
     char character;
 
@@ -11,41 +22,23 @@ public class CharacterToken : IToken
         this.character = character;
     }
 
-    public void AfterMatching(OperationManager operationManager, Operation currentOperation)
-    {
-        currentOperation.Input = currentOperation.Input.Substring(1);
-        operationManager.AddOperation(currentOperation);
-    }
-
-    public bool IsMatching(string input)
+    public override bool IsMatching(string input)
     {
         return input.Length != 0 && input[0] == character;
     }
 }
 
-public class DigitToken : IToken
+public class DigitToken : MoveByOneCharacterToken
 {
-    public void AfterMatching(OperationManager operationManager, Operation currentOperation)
-    {
-        currentOperation.Input = currentOperation.Input.Substring(1);
-        operationManager.AddOperation(currentOperation);
-    }
-
-    public bool IsMatching(string input)
+    public override bool IsMatching(string input)
     {
         return input.Length != 0 && char.IsDigit(input[0]);
     }
 }
 
-public class LetterToken : IToken
+public class LetterToken : MoveByOneCharacterToken
 {
-    public void AfterMatching(OperationManager operationManager, Operation currentOperation)
-    {
-        currentOperation.Input = currentOperation.Input.Substring(1);
-        operationManager.AddOperation(currentOperation);
-    }
-
-    public bool IsMatching(string input)
+    public override bool IsMatching(string input)
     {
         return input.Length != 0 && char.IsLetter(input[0]);
     }
@@ -64,7 +57,7 @@ public class EndToken : IToken
     }
 }
 
-public class GroupToken : IToken
+public class GroupToken : MoveByOneCharacterToken
 {
     string group;
     public GroupToken(string group)
@@ -72,19 +65,13 @@ public class GroupToken : IToken
         this.group = group;
     }
 
-    public void AfterMatching(OperationManager operationManager, Operation currentOperation)
-    {
-        currentOperation.Input = currentOperation.Input.Substring(1);
-        operationManager.AddOperation(currentOperation);
-    }
-
-    public bool IsMatching(string input)
+    public override bool IsMatching(string input)
     {
         return input.Length != 0 && group.Contains(input[0]);
     }
 }
 
-public class ReverseGroupToken : IToken
+public class ReverseGroupToken : MoveByOneCharacterToken
 {
     string group;
     public ReverseGroupToken(string group)
@@ -92,13 +79,7 @@ public class ReverseGroupToken : IToken
         this.group = group;
     }
 
-    public void AfterMatching(OperationManager operationManager, Operation currentOperation)
-    {
-        currentOperation.Input = currentOperation.Input.Substring(1);
-        operationManager.AddOperation(currentOperation);
-    }
-
-    public bool IsMatching(string input)
+    public override bool IsMatching(string input)
     {
         return input.Length != 0 && !group.Contains(input[0]);
     }
@@ -152,15 +133,9 @@ public class ZeroOrOneToken : IToken
     }
 }
 
-public class AlwaysTrueToken : IToken
+public class AlwaysTrueToken : MoveByOneCharacterToken
 {
-    public void AfterMatching(OperationManager operationManager, Operation currentOperation)
-    {
-        currentOperation.Input = currentOperation.Input.Substring(1);
-        operationManager.AddOperation(currentOperation);
-    }
-
-    public bool IsMatching(string input)
+    public override bool IsMatching(string input)
     {
         return true;
     }
