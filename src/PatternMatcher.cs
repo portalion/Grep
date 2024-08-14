@@ -40,7 +40,7 @@ public class PatternMatcher : IPatternMatcher
             }
 
             operationManager.RemoveTopOperation();
-            if (currentOperation.FirstToken.IsMatching(currentOperation.Input))
+            if (!currentOperation.FirstToken.IsMatching(currentOperation.Input))
             {
                 continue;
             }
