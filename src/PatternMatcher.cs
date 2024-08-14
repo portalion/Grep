@@ -25,7 +25,7 @@ public class PatternMatcher : IPatternMatcher
         else
         {
             var tokens = _parser.ParseTokens(new Stack<char>(pattern.Reverse()));
-            for (int i = 0; i < inputLine.Length; i++)
+            for (int i = inputLine.Length - 1; i >= 0; i--)
             {
                 operationManager.AddOperation(inputLine.Substring(i), tokens.Clone());
             }
@@ -34,20 +34,21 @@ public class PatternMatcher : IPatternMatcher
         while(!operationManager.IsEmpty) 
         {
             var currentOperation = operationManager.CurrentOperation;
-            if (currentOperation.TokensAreEmpty) //if tokens are empty it determines that we found pattern
+            
+            if (operationManager.FoundMatch) //if tokens are empty it determines that we found pattern
             {
                 return true;
             }
 
             operationManager.RemoveTopOperation();
-            if (!currentOperation.FirstToken.IsMatching(currentOperation.Input))
+            var firstToken = currentOperation.RemoveFirstToken();
+            
+            if (!firstToken.IsMatching(currentOperation.Input))
             {
                 continue;
             }
 
-            currentOperation.Tokens.Pop();
-
-            currentOperation.FirstToken.AfterMatching(operationManager, currentOperation);
+            firstToken.AfterMatching(operationManager, currentOperation);
         }
 
         return false;

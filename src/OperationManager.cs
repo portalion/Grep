@@ -13,6 +13,7 @@ public class OperationManager
 
     public bool IsEmpty => operations.Count == 0;
     public Operation CurrentOperation => operations.Peek();
+    public bool FoundMatch => CurrentOperation.TokensAreEmpty;
 
     public void AddOperation(Operation operation)
     {

@@ -13,4 +13,8 @@ public class Operation
     public Stack<IToken> Tokens { get; set; } = new Stack<IToken>();
     public bool TokensAreEmpty => Tokens.Count == 0;
     public IToken FirstToken => Tokens.Peek();
+    public IToken RemoveFirstToken()
+    {
+        return Tokens.Pop();
+    }
 }
