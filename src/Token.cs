@@ -4,10 +4,9 @@ namespace codecrafters_grep.src;
 
 public abstract class MoveByOneCharacterToken : IToken
 {
-    public void AfterMatching(OperationManager operationManager, Operation currentOperation)
+    public void AfterMatching(OperationManager operationManager)
     {
-        currentOperation.Input = currentOperation.Input.Substring(1);
-        operationManager.AddOperation(currentOperation);
+        operationManager.CurrentOperation.RemoveFirstInputLetter();
     }
 
     public abstract bool IsMatching(string input);
@@ -46,9 +45,8 @@ public class LetterToken : MoveByOneCharacterToken
 
 public class EndToken : IToken
 {
-    public void AfterMatching(OperationManager operationManager, Operation currentOperation)
+    public void AfterMatching(OperationManager operationManager)
     {
-        operationManager.AddOperation(currentOperation);
     }
 
     public bool IsMatching(string input)
@@ -85,6 +83,14 @@ public class ReverseGroupToken : MoveByOneCharacterToken
     }
 }
 
+public class AlwaysTrueToken : MoveByOneCharacterToken
+{
+    public override bool IsMatching(string input)
+    {
+        return true;
+    }
+}
+
 public class OneOrMoreToken : IToken
 {
     IToken tokenToMatch;
@@ -93,8 +99,9 @@ public class OneOrMoreToken : IToken
         tokenToMatch = token;
     }
 
-    public void AfterMatching(OperationManager operationManager, Operation currentOperation)
+    public void AfterMatching(OperationManager operationManager)
     {
+        var currentOperation = operationManager.RemoveTopOperation();
         var oneOrManyMatchOperationTokens = currentOperation.Tokens.Clone();
         oneOrManyMatchOperationTokens.Push(this);
         oneOrManyMatchOperationTokens.Push(tokenToMatch);
@@ -118,8 +125,9 @@ public class ZeroOrOneToken : IToken
     {
         tokenToMatch = token;
     }
-    public void AfterMatching(OperationManager operationManager, Operation currentOperation)
+    public void AfterMatching(OperationManager operationManager)
     {
+        var currentOperation = operationManager.RemoveTopOperation();
         var oneMatchOperationTokens = currentOperation.Tokens.Clone();
         oneMatchOperationTokens.Push(tokenToMatch);
         operationManager.AddOperation(currentOperation.Input, oneMatchOperationTokens);
@@ -133,14 +141,6 @@ public class ZeroOrOneToken : IToken
     }
 }
 
-public class AlwaysTrueToken : MoveByOneCharacterToken
-{
-    public override bool IsMatching(string input)
-    {
-        return true;
-    }
-}
-
 public class OrToken : IToken
 {
     List<Stack<IToken>> groups = new();
@@ -149,8 +149,9 @@ public class OrToken : IToken
         groups.Add(tokens);
     }
 
-    public void AfterMatching(OperationManager operationManager, Operation currentOperation)
+    public void AfterMatching(OperationManager operationManager)
     {
+        var currentOperation = operationManager.RemoveTopOperation();
         foreach (var group in groups)
         {
             var operationTokens = currentOperation.Tokens.Clone();

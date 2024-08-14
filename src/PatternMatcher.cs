@@ -32,23 +32,20 @@ public class PatternMatcher : IPatternMatcher
         }
         
         while(!operationManager.IsEmpty) 
-        {
-            var currentOperation = operationManager.CurrentOperation;
-            
+        {            
             if (operationManager.FoundMatch) //if tokens are empty it determines that we found pattern
             {
                 return true;
             }
 
-            operationManager.RemoveTopOperation();
-            var firstToken = currentOperation.RemoveFirstToken();
+            var firstToken = operationManager.CurrentOperation.RemoveFirstToken();
             
-            if (!firstToken.IsMatching(currentOperation.Input))
+            if (!firstToken.IsMatching(operationManager.CurrentOperation.Input))
             {
                 continue;
             }
 
-            firstToken.AfterMatching(operationManager, currentOperation);
+            firstToken.AfterMatching(operationManager);
         }
 
         return false;

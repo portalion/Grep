@@ -17,4 +17,9 @@ public class Operation
     {
         return Tokens.Pop();
     }
+
+    public void RemoveFirstInputLetter()
+    {
+        Input = Input.Substring(1);
+    }
 }

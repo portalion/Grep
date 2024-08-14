@@ -25,8 +25,8 @@ public class OperationManager
         operations.Push(new Operation { Input = input, Tokens = tokens });
     }
 
-    public void RemoveTopOperation()
+    public Operation RemoveTopOperation()
     {
-        operations.Pop();
+        return operations.Pop();
     }
 }
