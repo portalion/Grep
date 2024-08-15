@@ -2,7 +2,7 @@
   "profiles": {
     "codecrafters-grep": {
       "commandName": "Project",
-      "commandLineArgs": "-E\r\n\"(cat) and \\1\""
+      "commandLineArgs": "-E\r\n\"([abcd]+) is \\1, not [^xyz]+\""
     }
   }
 }

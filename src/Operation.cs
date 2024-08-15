@@ -28,7 +28,10 @@ public class Operation
         return result;
     }
     public Operation Clone()
-    { 
+    {
+        var result = (Operation) MemberwiseClone();
+        result.Tokens = Tokens.Clone();
+        result.FoundGroups = FoundGroups.Clone();
         return new Operation(Input, Tokens.Clone(), FoundGroups.Clone());
     }
     public void AddToken(IToken token)
