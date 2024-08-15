@@ -60,6 +60,6 @@ public class Operation
 
     public MatchStringToken GetGroupToken(int index)
     { 
-        return new(FoundGroups[index]);
+        return new(FoundGroups[index - 1]);
     }
 }
