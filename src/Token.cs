@@ -147,6 +147,11 @@ public class ZeroOrOneToken : IToken
 public class OrToken : IToken
 {
     List<Stack<IToken>> groups = new();
+    public OrToken(List<Stack<IToken>> groups)
+    {
+        this.groups = groups;
+    }
+
     public void AddGroup(Stack<IToken> tokens)
     {
         groups.Add(tokens);
@@ -169,5 +174,29 @@ public class OrToken : IToken
     public bool IsMatching(string input)
     {
         return input.Length != 0;
+    }
+}
+
+public class StartExpressionToken : IToken
+{
+    public void AfterMatching(OperationManager operationManager)
+    {
+    }
+
+    public bool IsMatching(string input)
+    {
+        return true;
+    }
+}
+
+public class EndExpressionToken : IToken
+{
+    public void AfterMatching(OperationManager operationManager)
+    {
+    }
+
+    public bool IsMatching(string input)
+    {
+        return true;
     }
 }

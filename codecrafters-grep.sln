@@ -1,22 +1,30 @@
-
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.0.31903.59
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "codecrafters-grep", "codecrafters-grep.csproj", "{5647EB94-C939-4AAF-BDC4-807AA270FCF0}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "codecrafters-grep", "codecrafters-grep.csproj", "{5647EB94-C939-4AAF-BDC4-807AA270FCF0}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "grep.tests", "..\grep.tests\grep.tests.csproj", "{5854631F-95C8-4E3E-BAEC-4C694332CE18}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
-	GlobalSection(SolutionProperties) = preSolution
-		HideSolutionNode = FALSE
-	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
 		{5647EB94-C939-4AAF-BDC4-807AA270FCF0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{5647EB94-C939-4AAF-BDC4-807AA270FCF0}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{5647EB94-C939-4AAF-BDC4-807AA270FCF0}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{5647EB94-C939-4AAF-BDC4-807AA270FCF0}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5854631F-95C8-4E3E-BAEC-4C694332CE18}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5854631F-95C8-4E3E-BAEC-4C694332CE18}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5854631F-95C8-4E3E-BAEC-4C694332CE18}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5854631F-95C8-4E3E-BAEC-4C694332CE18}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {2FF780EA-2069-4DD3-816F-C5DCBF85EC75}
 	EndGlobalSection
 EndGlobal

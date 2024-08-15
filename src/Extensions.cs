@@ -9,5 +9,15 @@
             Array.Reverse(array);
             return new Stack<T>(array);
         }
+
+        public static Stack<T> Merge<T>(this Stack<T> stack, Stack<T> other)
+        {
+            var secondStack = other.Reverse();
+            foreach (var item in secondStack)
+            {
+                stack.Push(item);
+            }
+            return stack;
+        }
     }
 }

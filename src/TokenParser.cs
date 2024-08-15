@@ -5,91 +5,93 @@ namespace codecrafters_grep.src;
 
 public class TokenParser : ITokenParser
 {
-    IToken GetFirstTokenFromPattern(Stack<char> pattern, Stack<IToken> previousTokens)
+    List<Stack<IToken>> ParseExpression(Stack<char> pattern)
     {
-        var topOfStack = pattern.Pop();
-        switch (topOfStack)
+        List<Stack<IToken>> expressions = [new Stack<IToken>()];
+        while (pattern.TryPeek(out var _))
         {
-            case '(':
-                {
-                    OrToken result = new OrToken();
-                    char currentlyOnTop;
-                    var currentTokens = new Stack<IToken>();
-                    while((currentlyOnTop = pattern.Peek()) != ')')
+            var tokens = expressions.Last();
+            var topOfPattern = pattern.Pop();
+            switch (topOfPattern)
+            {
+                case '(':
                     {
-                        if(currentlyOnTop == '|')
+                        tokens.Push(new StartExpressionToken());
+                        tokens.Push(new OrToken(ParseExpression(pattern)));
+                        tokens.Push(new EndExpressionToken());
+                    }
+                    break;
+                case ')':
+                    return expressions;
+                case '|':
+                    expressions[expressions.Count - 1] = new(tokens);
+                    expressions.Add(new Stack<IToken>());
+                    break;
+                case '[':
+                    {
+                        StringBuilder group = new StringBuilder();
+                        while ((topOfPattern = pattern.Pop()) != ']')
                         {
-                            pattern.Pop();
-                            result.AddGroup(new Stack<IToken>(currentTokens.Clone()));
-                            currentTokens.Clear();
+                            group.Append(topOfPattern);
                         }
-                        var token = GetFirstTokenFromPattern(pattern, currentTokens);
-                        currentTokens.Push(token);
-                    }
-                    result.AddGroup(new Stack<IToken>(currentTokens.Clone()));
-                    pattern.Pop();
-                    return result;
-                }
-            case '[':
-                {
-                    StringBuilder group = new StringBuilder();
-                    while ((topOfStack = pattern.Pop()) != ']')
-                    {
-                        group.Append(topOfStack);
-                    }
 
-                    if (group[0] == '^')
-                    {
-                        return new ReverseGroupToken(group.ToString().Substring(1));
-                    }
+                        if (group[0] == '^')
+                        {
+                            tokens.Push( new ReverseGroupToken(group.ToString().Substring(1)));
+                        }
 
-                    return new GroupToken(group.ToString());
-                }
-            case '\\':
-                {
-                    var prev = topOfStack;
-                    topOfStack = pattern.Pop();
-                    switch (topOfStack)
-                    {
-                        case 'd':
-                            return new DigitToken();
-                        case 'w':
-                            return new LetterToken();
-                        default:
-                            pattern.Push(topOfStack);
-                            topOfStack = prev;
-                            break;
+                        tokens.Push( new GroupToken(group.ToString()));
                     }
-                }
-                goto default;
-            case '$':
-                return new EndToken();
-            case '+':
-                {
-                    var previousToken = previousTokens.Pop();
-                    return new OneOrMoreToken(previousToken);
-                }
-            case '?':
-                {
-                    var previousToken = previousTokens.Pop();
-                    return new ZeroOrOneToken(previousToken);
-                }
-            case '.':
-                return new AlwaysTrueToken();
-            default:
-                return new CharacterToken(topOfStack);
+                    break;
+                case '\\':
+                    {
+                        var prev = topOfPattern;
+                        topOfPattern = pattern.Pop();
+                        switch (topOfPattern)
+                        {
+                            case 'd':
+                                tokens.Push( new DigitToken());
+                                break;
+                            case 'w':
+                                tokens.Push( new LetterToken());
+                                break;
+                            default:
+                                pattern.Push(topOfPattern);
+                                topOfPattern = prev;
+                                break;
+                        }
+                    }
+                    goto default;
+                case '$':
+                    tokens.Push( new EndToken());
+                    break;
+                case '+':
+                    {
+                        var previousToken = tokens.Pop();
+                        tokens.Push( new OneOrMoreToken(previousToken));
+                    }
+                    break;
+                case '?':
+                    {
+                        var previousToken = tokens.Pop();
+                        tokens.Push( new ZeroOrOneToken(previousToken));
+                    }
+                    break;
+                case '.':
+                    tokens.Push(new AlwaysTrueToken());
+                    break;
+                default:
+                    tokens.Push(new CharacterToken(topOfPattern));
+                    break;
+            }
         }
+
+        expressions[expressions.Count - 1] = new Stack<IToken>(expressions.Last());
+        return expressions;
     }
 
     public Stack<IToken> ParseTokens(Stack<char> pattern)
     {
-        var result = new Stack<IToken>();
-        while (pattern.TryPeek(out var _))
-        {
-            var token = this.GetFirstTokenFromPattern(pattern, result);
-            result.Push(token);
-        }
-
-        return new (result);
+        return ParseExpression(pattern).First();
     }
 }
