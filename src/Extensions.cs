@@ -10,6 +10,13 @@
             return new Stack<T>(array);
         }
 
+        public static List<T> Clone<T>(this List<T> list)
+        {
+            var array = new T[list.Count];
+            list.CopyTo(array, 0);
+            return new List<T>(array);
+        }
+
         public static Stack<T> Merge<T>(this Stack<T> stack, Stack<T> other)
         {
             var secondStack = other.Reverse();

@@ -17,7 +17,7 @@ public class OperationManager
 
     public void AddOperation(string input, Stack<IToken> tokens)
     {
-        operations.Push(new Operation(input, tokens));
+        operations.Push(new Operation(input, tokens, null));
     }
 
     public Operation RemoveTopOperation()

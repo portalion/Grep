@@ -2,7 +2,7 @@
   "profiles": {
     "codecrafters-grep": {
       "commandName": "Project",
-      "commandLineArgs": "-E\r\n\"(cat|dog)\""
+      "commandLineArgs": "-E\r\n\"((abc)cat|dog)\""
     }
   }
 }

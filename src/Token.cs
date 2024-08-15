@@ -6,7 +6,8 @@ public abstract class MoveByOneCharacterToken : IToken
 {
     public void AfterMatching(OperationManager operationManager)
     {
-        operationManager.CurrentOperation.RemoveFirstInputLetter();
+        var matched = operationManager.CurrentOperation.RemoveFirstInputLetter();
+        operationManager.CurrentOperation.AddCharacterToActiveGroups(matched);
     }
 
     public abstract bool IsMatching(string input);
@@ -181,6 +182,8 @@ public class StartExpressionToken : IToken
 {
     public void AfterMatching(OperationManager operationManager)
     {
+        operationManager.CurrentOperation.AddNewGroup();
+        operationManager.CurrentOperation.MoveFirstIndexByOne();
     }
 
     public bool IsMatching(string input)
@@ -193,6 +196,47 @@ public class EndExpressionToken : IToken
 {
     public void AfterMatching(OperationManager operationManager)
     {
+        operationManager.CurrentOperation.MoveLastIndexByOne();
+    }
+
+    public bool IsMatching(string input)
+    {
+        return true;
+    }
+}
+
+public class MatchGroupToken : IToken
+{
+    int groupNumber;
+    public MatchGroupToken(int groupNumber)
+    {
+        this.groupNumber = groupNumber;
+    }
+
+    public void AfterMatching(OperationManager operationManager)
+    {
+        operationManager.CurrentOperation.AddToken(operationManager.CurrentOperation.GetGroupToken(groupNumber));
+    }
+
+    public bool IsMatching(string input)
+    {
+        return true;
+    }
+}
+
+public class MatchStringToken : IToken
+{
+    string input;
+    public MatchStringToken(string input)
+    {
+        this.input = input;
+    }
+    public void AfterMatching(OperationManager operationManager)
+    {
+        foreach(var c in input.Reverse())
+        {
+            operationManager.CurrentOperation.AddToken(new CharacterToken(c));
+        }
     }
 
     public bool IsMatching(string input)

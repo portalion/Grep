@@ -47,6 +47,13 @@ public class TokenParser : ITokenParser
                     {
                         var prev = topOfPattern;
                         topOfPattern = pattern.Pop();
+
+                        if(char.IsDigit(topOfPattern))
+                        {
+                            tokens.Push(new MatchGroupToken(topOfPattern - '0'));
+                            break;
+                        }
+
                         switch (topOfPattern)
                         {
                             case 'd':
@@ -61,7 +68,7 @@ public class TokenParser : ITokenParser
                                 break;
                         }
                     }
-                    goto default;
+                    break;
                 case '$':
                     tokens.Push( new EndToken());
                     break;
