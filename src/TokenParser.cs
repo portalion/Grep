@@ -22,6 +22,7 @@ public class TokenParser : ITokenParser
                     }
                     break;
                 case ')':
+                    expressions[expressions.Count - 1] = new Stack<IToken>(expressions.Last());
                     return expressions;
                 case '|':
                     expressions[expressions.Count - 1] = new(tokens);
