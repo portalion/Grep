@@ -6,8 +6,8 @@ public class Operation
 {
     Stack<IToken> Tokens { get; set; } = new Stack<IToken>();
     List<string> FoundGroups { get; set; }
-    int firstIndex = 0;
-    int lastIndex = 0;
+    List<int> ActiveGroups = new List<int>();
+    int latestGroupIndex = 0;
     public Operation(string input, Stack<IToken> tokens, List<string>? foundGroups)
     {
         FoundGroups = foundGroups ?? new List<string>();
@@ -41,23 +41,21 @@ public class Operation
     public void AddNewGroup(string initialValue = "")
     {
         FoundGroups.Add(initialValue);
+        latestGroupIndex++;
     }
     public void MoveFirstIndexByOne()
     {
-        firstIndex++;
+        ActiveGroups.Add(latestGroupIndex);
     }
     public void MoveLastIndexByOne()
     {
-        lastIndex++;
+        ActiveGroups.RemoveAt(ActiveGroups.Count - 1);
     }
     public void AddCharacterToActiveGroups(char character)
     {
-        for (int i = 0; i < FoundGroups.Count; i++)
+        foreach (var index in ActiveGroups)
         {
-            if(i >= lastIndex && i <= firstIndex)
-            {
-                FoundGroups[i] += character;
-            }
+            FoundGroups[index - 1] += character;
         }
     }
 
