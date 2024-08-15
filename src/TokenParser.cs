@@ -49,14 +49,20 @@ public class TokenParser : ITokenParser
                 case '\\':
                     {
                         var prev = topOfPattern;
-                        topOfPattern = pattern.Pop();
+                        topOfPattern = pattern.Peek();
 
                         if(char.IsDigit(topOfPattern))
                         {
-                            tokens.Push(new MatchGroupToken(topOfPattern - '0'));
+                            StringBuilder groupNumber = new();
+                            while(char.IsDigit(pattern.Peek()))
+                            {
+                                groupNumber.Append(pattern.Pop());
+                            }
+                            tokens.Push(new MatchGroupToken(int.Parse(groupNumber.ToString())));
                             break;
                         }
 
+                        pattern.Pop();
                         switch (topOfPattern)
                         {
                             case 'd':
