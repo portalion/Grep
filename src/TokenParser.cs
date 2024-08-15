@@ -40,8 +40,10 @@ public class TokenParser : ITokenParser
                         {
                             tokens.Push( new ReverseGroupToken(group.ToString().Substring(1)));
                         }
-
-                        tokens.Push( new GroupToken(group.ToString()));
+                        else
+                        {
+                            tokens.Push( new GroupToken(group.ToString()));
+                        }
                     }
                     break;
                 case '\\':
