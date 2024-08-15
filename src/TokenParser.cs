@@ -54,7 +54,7 @@ public class TokenParser : ITokenParser
                         if(char.IsDigit(topOfPattern))
                         {
                             StringBuilder groupNumber = new();
-                            while(char.IsDigit(pattern.Peek()))
+                            while(pattern.Count != 0 && char.IsDigit(pattern.Peek()))
                             {
                                 groupNumber.Append(pattern.Pop());
                             }
