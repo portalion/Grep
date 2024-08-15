@@ -32,7 +32,7 @@ public class Operation
         var result = (Operation) MemberwiseClone();
         result.Tokens = Tokens.Clone();
         result.FoundGroups = FoundGroups.Clone();
-        return new Operation(Input, Tokens.Clone(), FoundGroups.Clone());
+        return result;
     }
     public void AddToken(IToken token)
     {
